@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>شفتاتي برو</title>
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/calendar-plus.png">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+     <!-- أيقونة الموقع في المتصفح العادي -->
+<link rel="icon" type="image/png" href="C:\Users\Hussien\Desktop\loging\image\img.png">
+
+<!-- أيقونة الشاشة الرئيسية للأيفون -->
+<link rel="apple-touch-icon" href="C:\Users\Hussien\Desktop\loging\image\img.png">
+</head>
+<body>
+
+    <!-- نفس هيكل HTML السابق تماماً بدون تغيير -->
+    <!-- (ملاحظة: تأكد أن محتوى الـ body هو نفسه الذي اعتمدته سابقاً) -->
+    
+    <div id="screen-login" class="screen container">
+        <div style="text-align: center; margin: 50px 0 30px;">
+            <h1 class="app-title"> IT teem (GOR)</h1>
+            <!-- <p class="app-subtitle">نظام الموظفين الذكي</p> -->
+        </div>
+        <div class="card">
+            <div id="loginAvatar" onclick="document.getElementById('imgInput').click()"><span>📷</span></div>
+            <input type="file" id="imgInput" hidden accept="image/*" onchange="app.handleImage(this)">
+            <input type="text" id="regName" class="form-input" placeholder="الاسم الكامل">
+            <select id="regRole" class="form-input">
+                <option value="مهندس">👷 مهندس</option>
+                <option value="فني">🔧 فني</option>
+                <option value="مشغل">⚙️ مشغل</option>
+            </select>
+            <div class="label-text">📅 تاريخ أول دوام:</div>
+            <input type="date" id="regDate" class="form-input">
+            <div class="label-text">💰 الراتب اليومي:</div>
+            <input type="number" id="regRate" class="form-input" placeholder="مثلاً 30">
+            <button onclick="app.register()" class="btn btn-primary">💾 حفظ وبدء الاستخدام</button>
+            <p class="link-text" onclick="app.importData()">📂 استيراد نسخة احتياطية</p>
+            <input type="file" id="backupInput" hidden accept=".json" onchange="app.processImport(this)">
+        </div>
+    </div>
+
+    <div id="screen-home" class="screen container">
+        <div class="header-row">
+            <div><span id="greeting"></span><h3 id="homeName">--</h3></div>
+            <img id="headerAvatar" src="" alt="User">
+        </div>
+        <div id="liveSalaryBox" class="live-counter-box" style="display: none;">
+            <div class="live-amount" id="liveMoney">0.000</div>
+            <div class="live-label">💰 الراتب المكتسب الآن</div>
+        </div>
+        <div id="heroCard" class="card hero-card">
+            <span id="heroBadge">--</span>
+            <div id="heroTimer">00:00</div>
+            <p id="heroMsg">--</p>
+        </div>
+        <div class="action-area">
+            <button class="btn btn-primary btn-lg" onclick="app.quickAttend()">✅ تسجيل حضور اليوم</button>
+        </div>
+        <div class="stats-grid">
+            <div class="card stat-item"><span>أيام العمل</span><h3 id="quickDays">0</h3></div>
+            <div class="card stat-item"><span>الراتب التقديري</span><h3 id="quickSalary" class="text-primary">0</h3></div>
+        </div>
+    </div>
+
+    <div id="screen-schedule" class="screen container">
+        <h2>📅 الجدول الشهري</h2>
+        <div class="card month-control">
+            <button onclick="app.changeMonth(-1)">❮</button>
+            <span id="scheduleTitle">--</span>
+            <button onclick="app.changeMonth(1)">❯</button>
+        </div>
+        <div id="timelineList"></div>
+    </div>
+
+    <div id="screen-stats" class="screen container">
+        <h2>💰 المالية</h2>
+        <div class="card bg-primary text-white">
+            <span style="opacity:0.9">صافي المستحق</span>
+            <h1 id="netSalary" style="font-size: 3rem;">0</h1>
+            <span id="statsMonth">--</span>
+        </div>
+        <div class="card">
+            <div class="row"><span>الراتب الأساسي</span> <span id="baseSalary">0</span></div>
+            <div class="row text-work"><span>➕ إضافي</span> <span id="overtimeTotal">0</span></div>
+            <div class="row text-rest"><span>➖ خصومات</span> <span id="deductionsTotal">0</span></div>
+            <hr>
+            <div class="row bold"><span>الصافي</span> <span id="finalTotal">0</span></div>
+        </div>
+    </div>
+
+    <div id="screen-profile" class="screen container">
+        <h2>⚙️ الإعدادات</h2>
+        <div class="card text-center">
+            <img id="profileAvatar" src="" class="profile-img-lg">
+            <h3 id="profileName">--</h3>
+            <p id="profileRole" class="text-primary">--</p>
+        </div>
+        <div class="card action-row" onclick="app.toggleTheme()">
+            <span>المظهر (ليلي / نهاري)</span>
+            <span id="themeIcon">🌙</span>
+        </div>
+        <div class="card">
+            <button onclick="app.exportBackup()" class="btn btn-primary mb-2">💾 نسخة احتياطية</button>
+            <button onclick="app.exportExcel()" class="btn btn-outline mb-2">📄 تقرير Excel</button>
+            <button onclick="app.logout()" class="btn btn-danger">🗑️ تصفير البيانات</button>
+        </div>
+    </div>
+
+    <nav id="navbar" class="nav-bar" style="display: none;">
+        <div class="nav-item active" onclick="app.nav('home', this)">🏠<span>الرئيسية</span></div>
+        <div class="nav-item" onclick="app.nav('schedule', this)">📅<span>الجدول</span></div>
+        <div class="nav-item" onclick="app.nav('stats', this)">💰<span>المالية</span></div>
+        <div class="nav-item" onclick="app.nav('profile', this)">👤<span>حسابي</span></div>
+    </nav>
+
+    <script src="script.js"></script>
+    
+    <!-- كود تسجيل PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
+    </script>
+</body>
+</html>
