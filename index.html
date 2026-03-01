@@ -14,10 +14,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-    <!-- أيقونة الموقع -->
-    <link rel="icon" type="image/png" href="C:\Users\Hussien\Desktop\loging\image\img.png">
-    <link rel="apple-touch-icon" href="C:\Users\Hussien\Desktop\loging\image\img.png">
-    
     <style>
         /* ==================== Reset & Base ==================== */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -36,9 +32,7 @@
             --danger-soft: #fee2e2;
             --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
             --radius: 16px;
-            --nav-height: 70px;
-            --card-cloud-bg: #f0f4f8;
-            --card-cloud-text: #4a4b55;
+            --nav-height: 80px; /* Increased for mobile safety */
         }
 
         body.dark {
@@ -54,8 +48,6 @@
             --danger: #f87171;
             --danger-soft: #7f1d1d;
             --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-            --card-cloud-bg: #1e293b;
-            --card-cloud-text: #cbd5e1;
         }
 
         body {
@@ -68,6 +60,7 @@
             padding-bottom: var(--nav-height);
             transition: background 0.3s, color 0.3s;
             user-select: none;
+            overflow-x: hidden; /* Fix horizontal scroll */
         }
 
         /* ==================== Layout ==================== */
@@ -95,9 +88,11 @@
         .screen {
             padding: 20px;
             flex: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* Enable scrolling inside screen */
+            overflow-x: hidden;
             display: none;
             animation: fadeIn 0.3s ease;
+            padding-bottom: 100px; /* Space for bottom nav */
         }
         .screen.active { display: block; }
 
@@ -175,15 +170,20 @@
             display: flex;
             flex-direction: row;
             padding: 8px 16px;
-            border-top: 4px solid var(--border);
-            border-bottom: 4px solid var(--border);
+            border-top: 1px solid var(--border); /* Thinner border */
             background-color: var(--surface);
             justify-content: space-around;
             align-items: center;
-            position: sticky;
+            position: fixed; /* Fixed for mobile */
             bottom: 0;
+            left: 0; /* Ensure full width */
+            right: 0; /* Ensure full width */
+            width: 100%;
+            max-width: 480px; /* Match app width */
+            margin: 0 auto; /* Center nav */
             z-index: 100;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            height: var(--nav-height);
         }
 
         .nav-button-new {
@@ -198,12 +198,12 @@
             flex-direction: column;
             align-items: center;
             font-size: 0.75rem;
-            gap: 2px;
+            gap: 4px;
         }
 
-        .nav-button-new:hover { background-color: #93c5fd; }
-        .nav-button-new.active { color: var(--primary); background-color: var(--primary-soft); }
-        .nav-button-new svg { width: 2em; height: 2em; }
+        .nav-button-new:hover { background-color: var(--bg); }
+        .nav-button-new.active { color: var(--primary); }
+        .nav-button-new svg { width: 24px; height: 24px; }
 
         /* ==================== macOS Card ==================== */
         .card-macos {
@@ -228,16 +228,7 @@
         }
 
         .circle { padding: 0 4px; }
-
-        .box {
-            display: inline-block;
-            align-items: center;
-            width: 12px;
-            height: 12px;
-            padding: 1px;
-            border-radius: 50%;
-        }
-
+        .box { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
         .red { background-color: #ff605c; }
         .yellow { background-color: #ffbd44; }
         .green { background-color: #00ca4e; }
@@ -245,238 +236,111 @@
         .card__content {
             padding: 16px;
             text-align: center;
-            min-height: 150px;
+            min-height: 130px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background-color: inherit;
         }
 
         .macos-day { font-size: 1.8rem; font-weight: bold; color: var(--text-main); line-height: 1.2; }
         .macos-date { font-size: 1rem; color: var(--text-sub); margin: 8px 0; }
         .macos-time { font-size: 1.4rem; font-weight: 600; color: var(--primary); direction: ltr; }
-        .macos-status { font-size: 0.9rem; color: var(--text-sub); margin-top: 8px; }
 
-        /* Vertical Calendar (Column) */
-        .vertical-calendar { display: flex; flex-direction: column; gap: 8px; }
+        /* ==================== Calendar Rows ==================== */
+        .vertical-calendar { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        
         .cal-day-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: var(--bg);
             border-radius: 12px;
-            padding: 12px;
+            padding: 12px 16px;
             border: 1px solid var(--border);
             cursor: pointer;
             transition: 0.1s;
+            position: relative;
+            overflow: hidden;
         }
-        .cal-day-row.work { background: var(--success-soft); border-color: var(--success); }
-        .cal-day-row.rest { background: var(--danger-soft); border-color: var(--danger); }
-        .cal-day-row.today { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        /* حالة يوم الدوام (الخلفية الخضراء) */
+        .cal-day-row.scheduled-work {
+            background: var(--success-soft);
+            border-color: var(--success);
+        }
         
-        .day-info { display: flex; flex-direction: column; }
-        .day-number { font-size: 1.1rem; font-weight: bold; }
-        .day-week { font-size: 0.8rem; color: var(--text-sub); }
-        .day-status-badge {
-            padding: 4px 10px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: var(--surface);
+        /* حالة اليوم الحالي */
+        .cal-day-row.today {
+            outline: 2px solid var(--primary);
+            outline-offset: -2px;
         }
+        
+        .day-info { display: flex; flex-direction: column; gap: 2px; }
+        .day-number { font-size: 1.2rem; font-weight: bold; }
+        .day-week { font-size: 0.85rem; color: var(--text-sub); }
+
+        /* المربع (Checkbox) المخصص */
+        .custom-checkbox {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            transition: 0.2s;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* عند الضغط عليه (الحضور مؤكد) */
+        .cal-day-row.attended .custom-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        
+        /* تحسين التباين في الوضع الليلي */
+        body.dark .custom-checkbox { border-color: #4b5563; }
 
         .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .month-nav h3 { font-size: 1.1rem; font-weight: bold; }
 
-        /* ==================== 3D Buttons (Z4drus) ==================== */
+        /* ==================== 3D Buttons ==================== */
         .button-container-3d { display: flex; justify-content: center; gap: 10px; }
-
         .button-3d {
-            -webkit-appearance: none;
-            appearance: none;
-            position: relative;
-            border-width: 0;
-            padding: 0 8px;
-            min-width: 4em;
-            min-height: 4em;
-            box-sizing: border-box;
-            background: transparent;
-            font: inherit;
-            cursor: pointer;
-            border-radius: 20px;
-            margin: 0;
+            -webkit-appearance: none; appearance: none; position: relative; border-width: 0; padding: 0;
+            width: 45px; height: 45px; box-sizing: border-box; background: transparent; cursor: pointer;
         }
-
         .button-top {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
-            padding: 8px 16px;
-            transform: translateY(0);
-            color: #fff;
-            background-image: linear-gradient(145deg, #6a11cb, #2575fc);
-            text-shadow: 0 -1px rgba(0, 0, 0, 0.25);
-            border-radius: 20px;
-            transition: transform 0.3s, border-radius 0.3s, background 10s;
+            display: flex; align-items: center; justify-content: center; position: relative; z-index: 2;
+            width: 100%; height: 100%; transform: translateY(0); color: #fff;
+            background-image: linear-gradient(145deg, #6a11cb, #2575fc); border-radius: 12px;
+            transition: transform 0.1s;
         }
-
-        .button-3d:active .button-top {
-            border-radius: 10px 10px 8px 8px / 8px;
-            transform: translateY(2px);
-            background-image: linear-gradient(145deg, #2575fc, #6a11cb);
-        }
-
+        .button-3d:active .button-top { transform: translateY(2px); }
         .button-bottom {
-            position: absolute;
-            z-index: 1;
-            bottom: 4px;
-            left: 4px;
-            border-radius: 20px;
-            padding-top: 6px;
-            width: calc(100% - 8px);
-            height: calc(100% - 10px);
-            background-image: linear-gradient(145deg, #2575fc, #6a11cb);
-            box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
-            transition: border-radius 0.2s, padding-top 0.2s;
+            position: absolute; z-index: 1; bottom: -4px; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(145deg, #2575fc, #6a11cb); border-radius: 12px; opacity: 0.5;
         }
 
-        .button-base {
-            position: absolute;
-            z-index: 0;
-            top: 4px;
-            left: 0;
-            border-radius: 20px;
-            width: 100%;
-            height: calc(100% - 4px);
-            background-color: rgba(0, 0, 0, 0.15);
-            box-shadow: 0 1px 1px 0 rgba(255, 255, 255, 0.75), inset 0 2px 2px rgba(0, 0, 0, 0.25);
-            transition: border-radius 0.2s, padding-top 0.2s;
-        }
-
-        .button-3d:active .button-bottom { border-radius: 10px 10px 8px 8px / 8px; padding-top: 0; }
-        .button-3d:active .button-base { border-radius: 10px 10px 8px 8px / 8px; }
-
-        /* ==================== Theme Toggle Switch (chase2k25) ==================== */
+        /* ==================== Theme Toggle ==================== */
         .theme-toggle-container { width: 100%; display: flex; justify-content: center; margin: 15px 0; }
-        .theme-toggle-input { display: none; }
-        .theme-toggle-app { display: flex; justify-content: center; align-items: center; width: 100%; }
-        .theme-toggle-body { width: 100%; display: flex; justify-content: center; align-items: center; background-color: transparent; transition: background-color 0.3s ease-in-out; }
-        .theme-toggle-phone {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            max-width: 18rem;
-            background-color: #f9f9f9;
-            box-shadow: 8px 8px 0px #000;
-            border-radius: 40px;
-            display: flex;
-            flex-direction: column;
-            border: 4px solid #000;
-            padding: 10px;
-        }
-
-        body.dark .theme-toggle-phone { background-color: #34495e; }
-        .theme-toggle-menu { font-size: 80%; opacity: 0.8; padding: 0.8rem 1.8rem; display: flex; justify-content: space-between; align-items: center; }
-        .theme-toggle-icons { display: flex; align-items: center; }
-        .theme-toggle-battery { width: 0.85rem; height: 0.55rem; background-color: #000; border: 1px solid #000; margin-bottom: 4px; }
-        body.dark .theme-toggle-battery { background-color: #fff; }
-        .theme-toggle-network { width: 0; height: 0; border-style: solid; border-width: 0 7px 9px 7px; border-color: transparent transparent #000 transparent; transform: rotate(135deg); margin: 0.12rem 0.4rem; }
-        body.dark .theme-toggle-network { border-color: transparent transparent #fff transparent; }
-        .theme-toggle-content { display: flex; flex-direction: column; justify-content: center; align-content: space-between; margin: auto; text-align: center; width: 80%; transform: translateY(5%); }
-        .theme-toggle-circle { position: relative; border-radius: 100%; width: 8rem; height: 8rem; background: linear-gradient(40deg, #d90429, #efb700 70%); margin: auto; border: 4px solid #0000000; }
-        body.dark .theme-toggle-circle { background: linear-gradient(40deg, #d3bcff, #ffffff 70%); border: none; }
-        .theme-toggle-crescent {
-            position: absolute;
-            border-radius: 100%;
-            right: 0;
-            width: 6rem;
-            height: 6rem;
-            background: white;
-            transform: scale(0);
-            transform-origin: top right;
-            transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
-        }
-        body.dark .theme-toggle-crescent { transform: scale(1); background: #34495e; }
-        .theme-toggle-label {
-            width: 100%;
-            background-color: #d1d1d1;
-            background-image: radial-gradient(#000000 15%, transparent 16%), radial-gradient(#000000 15%, transparent 16%);
-            background-size: 10px 10px;
-            background-position: 0 0, 5px 5px;
-            border-radius: 100px;
-            position: relative;
-            margin: 3rem 0 4rem 0;
-            cursor: pointer;
-            border: 4px solid #000;
-            height: 4rem;
-        }
-        .theme-toggle-toggle {
-            position: absolute;
-            width: 50%;
-            top: -4px;
-            left: -4px;
-            background-color: #29a9ff;
-            box-shadow: 4px 4px 0px #000;
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border: 4px solid #000;
-            box-sizing: border-box;
-            height: 4rem;
-            border-radius: 100px;
-        }
-        body.dark .theme-toggle-toggle { transform: translateX(103%); background-color: #ffc107; }
-        .theme-toggle-names {
-            font-size: 150%;
-            text-align: center;
-            color: #000;
-            text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
-            width: 70%;
-            font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-            font-style: italic;
-            display: flex;
-            justify-content: space-between;
-            user-select: none;
-            z-index: 10;
-            position: relative;
-            margin: 0 auto;
-            top: -3.5rem;
-        }
-        .theme-toggle-dark { opacity: 0; right: 12%; top: 50%; transform: translateY(-50%); position: absolute; }
-        body.dark .theme-toggle-dark { opacity: 1; color: #ffc107; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; }
-        .theme-toggle-light { opacity: 1; left: 14%; top: 50%; transform: translateY(-50%); position: absolute; }
-        body.dark .theme-toggle-light { opacity: 0; }
-        .theme-toggle-time { color: #000; }
-        body.dark .theme-toggle-time { color: #fff; }
-
+        /* (Abbreviated CSS for toggle as in original) */
+        
         /* Loader */
         .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg); display: flex; justify-content: center; align-items: center;
+            z-index: 2000; transition: opacity 0.3s;
         }
         .loader-overlay.hidden { display: none; }
-        .loader { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; }
-        .loading-text { color: white; font-size: 14pt; font-weight: 600; margin-left: 10px; }
-        .dot { margin-left: 3px; animation: blink 1.5s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.3s; }
-        .dot:nth-child(3) { animation-delay: 0.6s; }
-        .loading-bar-background { --height: 30px; display: flex; align-items: center; box-sizing: border-box; padding: 5px; width: 200px; height: var(--height); background-color: #212121; box-shadow: #0c0c0c -2px 2px 4px 0px inset; border-radius: calc(var(--height) / 2); }
-        .loading-bar { position: relative; display: flex; justify-content: center; flex-direction: column; --height: 20px; width: 0%; height: var(--height); overflow: hidden; background: rgb(222, 74, 15); background: linear-gradient(0deg, rgba(222, 74, 15, 1) 0%, rgba(249, 199, 79, 1) 100%); border-radius: calc(var(--height) / 2); animation: loading 4s ease-out infinite; }
-        .white-bars-container { position: absolute; display: flex; align-items: center; gap: 18px; }
-        .white-bar { background: rgb(255, 255, 255); background: linear-gradient(-45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 70%); width: 10px; height: 45px; opacity: 0.3; rotate: 45deg; }
-
-        @keyframes loading { 0% { width: 0; } 80% { width: 100%; } 100% { width: 100%; } }
-        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--border);
+            border-top: 4px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .flex-row { display: flex; align-items: center; gap: 10px; }
         .space-between { justify-content: space-between; }
@@ -488,18 +352,9 @@
 <body>
 
 <div id="app">
-    <!-- Loader overlay -->
+    <!-- Loader -->
     <div id="loader-overlay" class="loader-overlay">
-        <div class="loader">
-            <div class="loading-text">جاري التحميل<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
-            <div class="loading-bar-background">
-                <div class="loading-bar">
-                    <div class="white-bars-container">
-                        <div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div><div class="white-bar"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="spinner"></div>
     </div>
 
     <!-- شاشة تسجيل الدخول -->
@@ -516,7 +371,7 @@
             <div class="form-group"><label>الاسم الكامل</label><input type="text" id="login-name" placeholder="مثال: أحمد محمد"></div>
             <div class="form-group"><label>المسمى الوظيفي</label><select id="login-job"><option value="مهندس">مهندس</option><option value="فني">فني</option></select></div>
             <div class="form-group"><label>تاريخ بداية المناوبة الأولى</label><input type="date" id="login-start" value="2025-03-01"></div>
-            <div class="form-group"><label>الراتب اليومي (دينار عراقي)</label><input type="number" id="login-rate" placeholder="000"></div>
+            <div class="form-group"><label>الراتب اليومي (دينار)</label><input type="number" id="login-rate" placeholder="000"></div>
             <button onclick="handleLogin()">حفظ ودخول 🚀</button>
         </div>
     </div>
@@ -530,45 +385,53 @@
         <div class="card-macos" id="macosCard">
             <div class="tools"><div class="circle"><span class="red box"></span></div><div class="circle"><span class="yellow box"></span></div><div class="circle"><span class="green box"></span></div></div>
             <div class="card__content">
-                <div class="macos-day" id="macosDay">الاثنين</div>
-                <div class="macos-date" id="macosDate">3 مايو 2025</div>
-                <div class="macos-time" id="macosTime">20:54:00</div>
-                <div class="macos-status" id="macosStatus">متبقي لنهاية الدوام</div>
+                <div class="macos-day" id="macosDay">--</div>
+                <div class="macos-date" id="macosDate">--</div>
+                <div class="macos-time" id="macosTime">--:--</div>
             </div>
         </div>
         <div class="flex-row" style="gap: 12px;">
-            <div class="card" style="flex: 1; text-align: center;"><div class="card-title justify-content-center">📅 دوام الشهر</div><div class="stat-value" id="home-workdays">0</div><span style="font-size: 0.8rem; color: var(--text-sub);">يوم عمل</span></div>
-            <div class="card" style="flex: 1; text-align: center;"><div class="card-title justify-content-center">💰 المتوقع</div><div class="stat-value" id="home-salary" style="color: var(--success);">0</div><span style="font-size: 0.8rem; color: var(--text-sub);">دينار</span></div>
+            <div class="card" style="flex: 1; text-align: center;">
+                <div class="card-title justify-content-center">✅ أيام الحضور</div>
+                <div class="stat-value" id="home-workdays">0</div>
+            </div>
+            <div class="card" style="flex: 1; text-align: center;">
+                <div class="card-title justify-content-center">💰 الراتب المستحق</div>
+                <div class="stat-value" id="home-salary" style="color: var(--success);">0</div>
+            </div>
         </div>
     </div>
 
     <!-- شاشة الجدول -->
     <div id="screen-calendar" class="screen">
         <div class="month-nav">
-            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(-1)"><div class="button-top"><span style="font-size: 1.5rem;">❮</span></div><div class="button-bottom"></div><div class="button-base"></div></button></div>
+            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(-1)"><div class="button-top"><span style="font-size: 1.2rem;">❮</span></div><div class="button-bottom"></div></button></div>
             <h3 id="cal-month-title"></h3>
-            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(1)"><div class="button-top"><span style="font-size: 1.5rem;">❯</span></div><div class="button-bottom"></div><div class="button-base"></div></button></div>
+            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(1)"><div class="button-top"><span style="font-size: 1.2rem;">❯</span></div><div class="button-bottom"></div></button></div>
         </div>
-        <div class="card"><div class="vertical-calendar" id="vertical-cal"></div></div>
+        <div class="card" style="padding: 10px;">
+            <div class="vertical-calendar" id="vertical-cal">
+                <!-- Days will be injected here -->
+            </div>
+        </div>
     </div>
 
     <!-- شاشة الرواتب -->
     <div id="screen-payroll" class="screen">
         <div class="month-nav">
-            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(-1)"><div class="button-top">❮</div><div class="button-bottom"></div><div class="button-base"></div></button></div>
+            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(-1)"><div class="button-top">❮</div><div class="button-bottom"></div></button></div>
             <h3 id="pay-month-title"></h3>
-            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(1)"><div class="button-top">❯</div><div class="button-bottom"></div><div class="button-base"></div></button></div>
+            <div class="button-container-3d"><button class="button-3d" onclick="changeMonth(1)"><div class="button-top">❯</div><div class="button-bottom"></div></button></div>
         </div>
         <div class="card">
             <div class="card-title">💵 تفاصيل الراتب</div>
-            <div class="flex-row space-between"><span>أيام العمل</span><strong id="pay-days">0</strong></div>
-            <div class="flex-row space-between"><span>اليومية (دينار)</span><strong id="pay-rate">0</strong></div>
+            <div class="flex-row space-between"><span>أيام الحضور (المؤكدة)</span><strong id="pay-days">0</strong></div>
+            <div class="flex-row space-between"><span>اليومية</span><strong id="pay-rate">0</strong></div>
             <hr style="border: 0; border-top: 1px dashed var(--border); margin: 12px 0;">
-            <div class="form-group flex-row space-between"><label>ساعات إضافي (+)</label><input type="number" id="pay-overtime" style="width: 100px; padding: 8px;" onchange="updatePayrollData()"></div>
-            <div class="form-group flex-row space-between"><label>خصومات (-)</label><input type="number" id="pay-deduction" style="width: 100px; padding: 8px;" onchange="updatePayrollData()"></div>
+            <div class="form-group flex-row space-between"><label>إضافي (+)</label><input type="number" id="pay-overtime" style="width: 100px; padding: 8px;" onchange="updatePayrollData()"></div>
+            <div class="form-group flex-row space-between"><label>خصم (-)</label><input type="number" id="pay-deduction" style="width: 100px; padding: 8px;" onchange="updatePayrollData()"></div>
             <div style="background: var(--primary-soft); padding: 16px; border-radius: 12px; margin-top: 16px;">
-                <div class="flex-row space-between"><span style="font-weight: bold; color: var(--primary);">صافي الراتب</span><span style="font-size: 1.4rem; font-weight: bold; color: var(--primary);" id="pay-total">0</span></div>
-                <div class="text-muted" style="font-size:0.8rem;">دينار عراقي</div>
+                <div class="flex-row space-between"><span style="font-weight: bold; color: var(--primary);">الصافي</span><span style="font-size: 1.4rem; font-weight: bold; color: var(--primary);" id="pay-total">0</span></div>
             </div>
         </div>
     </div>
@@ -581,43 +444,34 @@
             <div class="form-group"><label>تغيير تاريخ البدء</label><input type="date" id="set-start" onchange="saveSettings()"></div>
         </div>
         <div class="card">
-            <div class="theme-toggle-container">
-                <input type="checkbox" id="theme-switch" class="theme-toggle-input" onchange="toggleTheme()" />
-                <div class="theme-toggle-app">
-                    <div class="theme-toggle-phone">
-                        <div class="theme-toggle-menu"><div class="theme-toggle-time" id="theme-time">4:20</div><div class="theme-toggle-icons"><div class="theme-toggle-network"></div><div class="theme-toggle-battery"></div></div></div>
-                        <div class="theme-toggle-content"><div class="theme-toggle-circle"><div class="theme-toggle-crescent"></div></div><label for="theme-switch" class="theme-toggle-label"><div class="theme-toggle-toggle"></div><div class="theme-toggle-names"><p class="theme-toggle-light">DAY</p><p class="theme-toggle-dark">NIGHT</p></div></label></div>
-                    </div>
-                </div>
-            </div>
+            <button onclick="toggleTheme()">🌓 تغيير المظهر (ليلي/نهاري)</button>
         </div>
-        <div class="card"><button onclick="exportData()">📁 تصدير JSON</button></div>
         <div class="card"><button class="danger" onclick="logout()">تسجيل الخروج وحذف البيانات</button></div>
-        <div class="text-center" style="margin-top: 30px; color: var(--text-sub); font-size: 0.8rem;">الإصدار 2.0 - المهندس حسين محمد</div>
+        <div class="text-center" style="margin-top: 30px; color: var(--text-sub); font-size: 0.8rem;">الإصدار 3.0 <br>المطور : المهندس حسين محمد</div>
     </div>
 
     <!-- شريط التنقل السفلي -->
     <nav class="bottom-nav-new" id="bottom-nav">
         <button class="nav-button-new active" onclick="switchTab('home')" id="nav-home">
-            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 1024 1024" fill="currentColor"><path d="M946.5 505L560.1 118.8l-25.9-25.9a31.5 31.5 0 0 0-44.4 0L77.5 505a63.9 63.9 0 0 0-18.8 46c.4 35.2 29.7 63.3 64.9 63.3h42.5V940h691.8V614.3h43.4c17.1 0 33.2-6.7 45.3-18.8a63.6 63.6 0 0 0 18.7-45.3c0-17-6.7-33.1-18.8-45.2zM568 868H456V664h112v204zm217.9-325.7V868H632V640c0-22.1-17.9-40-40-40H432c-22.1 0-40 17.9-40 40v228H238.1V542.3h-96l370-369.7 23.1 23.1L882 542.3h-96.1z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>
             <span>الرئيسية</span>
         </button>
         <button class="nav-button-new" onclick="switchTab('calendar')" id="nav-calendar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             <span>الجدول</span>
         </button>
         <button class="nav-button-new" onclick="switchTab('payroll')" id="nav-payroll">
-            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a5.5 5.5 0 0 1 3.096 10.047 9.005 9.005 0 0 1 5.9 8.181.75.75 0 1 1-1.499.044 7.5 7.5 0 0 0-14.993 0 .75.75 0 0 1-1.5-.045 9.005 9.005 0 0 1 5.9-8.18A5.5 5.5 0 0 1 12 2.5ZM8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05 1.18 1.91 2.53 1.91 1.38 0 2.66-.84 2.66-2.12 0-1.1-.81-1.89-2.61-2.24-2.18-.44-3.52-1.77-3.52-3.61 0-1.9 1.44-3.15 3.23-3.48V3h2.67v1.93c1.71.36 3.16 1.46 3.27 3.4h-1.96c-.1-1.05-1.18-1.91-2.53-1.91-1.38 0-2.66.84-2.66 2.12 0 1.1.81 1.89 2.61 2.24 2.18.44 3.52 1.77 3.52 3.61 0 1.9-1.44 3.15-3.23 3.48z"/></svg>
             <span>الرواتب</span>
         </button>
         <button class="nav-button-new" onclick="switchTab('settings')" id="nav-settings">
-            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H5.78a1.65 1.65 0 0 0-1.51 1 1.65 1.65 0 0 0 .33 1.82l.04.04A10 10 0 0 0 12 17.66a10 10 0 0 0 6.36-2.62l.04-.04z" /><path d="M16.5 6.5l1-2" /><path d="M7.5 6.5l-1-2" /><path d="M12 4V2" /><path d="M12 22v-2" /><path d="M4 12H2" /><path d="M22 12h-2" /><path d="M6.5 16.5l-1 2" /><path d="M17.5 16.5l1 2" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H5.78a1.65 1.65 0 0 0-1.51 1 1.65 1.65 0 0 0 .33 1.82l.04.04A10 10 0 0 0 12 17.66a10 10 0 0 0 6.36-2.62l.04-.04z"></path></svg>
             <span>الإعدادات</span>
         </button>
     </nav>
 </div>
 
-<!-- ==================== Firebase & App Logic ==================== -->
+<!-- ==================== App Logic ==================== -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
@@ -634,18 +488,17 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const DB_KEY = 'attendance_app_v2';
+    const DB_KEY = 'attendance_app_v3';
 
     let state = {
         user: null,
-        overrides: {},
+        attendance: {}, // { "2025-05-01": true }
         payroll: {},
         settings: { dark: false }
     };
 
     let viewDate = new Date();
 
-    // دالة المزامنة مع Firebase
     async function syncToFirebase() {
         if (!state.user || !state.user.name) return;
         const safeName = state.user.name.replace(/[.#$[\]]/g, "_");
@@ -658,16 +511,17 @@
         return snapshot.exists() ? snapshot.val() : null;
     }
 
-    // --- Core Logic ---
     async function init() {
         const loader = document.getElementById('loader-overlay');
-        loader.classList.remove('hidden');
-
         const saved = localStorage.getItem(DB_KEY);
         if (saved) {
             state = JSON.parse(saved);
+            if (!state.attendance) state.attendance = {}; // Ensure backward compatibility
             const cloudData = await loadFromFirebase(state.user.name);
-            if (cloudData) state = cloudData;
+            if (cloudData) {
+                state = cloudData;
+                if (!state.attendance) state.attendance = {};
+            }
         }
 
         setTimeout(() => {
@@ -702,20 +556,22 @@
             state = cloudData;
         } else {
             state.user = { name, job, rate: Number(rate), start, image: img };
+            state.attendance = {};
         }
         saveState();
         location.reload();
     }
 
-    function getDayStatus(dateStr) {
-        if (state.overrides[dateStr]) return state.overrides[dateStr];
-        if (!state.user || !state.user.start) return 'rest';
+    // Determine if it SHOULD be a work day (Green background)
+    function isScheduledWorkDay(dateStr) {
+        if (!state.user || !state.user.start) return false;
         const start = new Date(state.user.start);
         const current = new Date(dateStr);
         start.setHours(0,0,0,0); current.setHours(0,0,0,0);
         const diffDays = Math.floor((current - start) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) return 'rest';
-        return (diffDays % 3 === 0) ? 'work' : 'rest';
+        if (diffDays < 0) return false;
+        // Logic: 1 day work, 2 days off (cycle of 3)
+        return (diffDays % 3 === 0);
     }
 
     function renderHome() {
@@ -725,14 +581,19 @@
         document.getElementById('home-date').innerText = new Date().toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' });
         document.getElementById('home-avatar').src = state.user.image;
 
+        // Calculate Stats based on CHECKS (Attendance)
         const y = new Date().getFullYear(), m = new Date().getMonth();
-        const daysInMonth = new Date(y, m + 1, 0).getDate();
-        let workDays = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-            if (getDayStatus(`${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`) === 'work') workDays++;
-        }
-        document.getElementById('home-workdays').innerText = workDays;
-        document.getElementById('home-salary').innerText = (workDays * state.user.rate).toLocaleString() + ' د.ع';
+        const prefix = `${y}-${String(m + 1).padStart(2, '0')}`;
+        
+        let attendedDays = 0;
+        Object.keys(state.attendance).forEach(date => {
+            if (date.startsWith(prefix) && state.attendance[date]) {
+                attendedDays++;
+            }
+        });
+
+        document.getElementById('home-workdays').innerText = attendedDays;
+        document.getElementById('home-salary').innerText = (attendedDays * state.user.rate).toLocaleString() + ' د.ع';
         updateMacosCard();
     }
 
@@ -740,8 +601,7 @@
         const now = new Date();
         document.getElementById('macosDay').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long' });
         document.getElementById('macosDate').innerText = now.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
-        document.getElementById('macosTime').innerText = now.toLocaleTimeString('en-GB');
-        document.getElementById('theme-time').innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('macosTime').innerText = now.toLocaleTimeString('en-US', { hour12: false });
     }
 
     function switchTab(tab) {
@@ -761,25 +621,56 @@
         const container = document.getElementById('vertical-cal');
         container.innerHTML = '';
         const daysInMonth = new Date(y, m + 1, 0).getDate();
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+
         for (let d = 1; d <= daysInMonth; d++) {
             const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const status = getDayStatus(dateStr);
+            const isScheduled = isScheduledWorkDay(dateStr);
+            const isAttended = state.attendance[dateStr] === true;
+            
             const row = document.createElement('div');
-            row.className = `cal-day-row ${status} ${dateStr === new Date().toISOString().split('T')[0] ? 'today' : ''}`;
-            row.onclick = () => { state.overrides[dateStr] = status === 'work' ? 'rest' : 'work'; saveState(); renderCalendar(); };
-            row.innerHTML = `<div class="day-info"><span class="day-number">${d}</span><span class="day-week">${new Date(y, m, d).toLocaleDateString('ar-EG', { weekday: 'long' })}</span></div><div class="day-status-badge">${status === 'work' ? 'دوام' : 'راحة'}</div>`;
+            // Add classes: 'scheduled-work' for green bg, 'attended' for checkmark style
+            row.className = `cal-day-row ${isScheduled ? 'scheduled-work' : ''} ${isAttended ? 'attended' : ''} ${dateStr === todayStr ? 'today' : ''}`;
+            
+            // Interaction: Toggle check on click
+            row.onclick = () => toggleAttendance(dateStr);
+
+            row.innerHTML = `
+                <div class="day-info">
+                    <span class="day-number">${d}</span>
+                    <span class="day-week">${new Date(y, m, d).toLocaleDateString('ar-EG', { weekday: 'long' })}</span>
+                </div>
+                <!-- The Box -->
+                <div class="custom-checkbox">
+                    ${isAttended ? '✔' : ''}
+                </div>
+            `;
             container.appendChild(row);
         }
+    }
+
+    function toggleAttendance(dateStr) {
+        // Toggle true/false
+        state.attendance[dateStr] = !state.attendance[dateStr];
+        saveState();
+        // Re-render to see changes
+        renderCalendar();
     }
 
     function renderPayroll() {
         const y = viewDate.getFullYear(), m = viewDate.getMonth();
         const key = `${y}-${String(m+1).padStart(2, '0')}`;
         document.getElementById('pay-month-title').innerText = viewDate.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+        
+        // Count ONLY Checked boxes
         let workDays = 0;
-        for (let d = 1; d <= new Date(y, m + 1, 0).getDate(); d++) {
-            if (getDayStatus(`${y}-${String(m+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`) === 'work') workDays++;
-        }
+        Object.keys(state.attendance).forEach(date => {
+            if (date.startsWith(key) && state.attendance[date]) {
+                workDays++;
+            }
+        });
+
         const data = state.payroll[key] || { overtime: 0, deduction: 0 };
         document.getElementById('pay-days').innerText = workDays;
         document.getElementById('pay-rate').innerText = state.user.rate;
@@ -799,7 +690,6 @@
         document.getElementById('set-rate').value = state.user.rate;
         document.getElementById('set-start').value = state.user.start;
         document.getElementById('settings-preview').src = state.user.image;
-        document.getElementById('theme-switch').checked = state.settings.dark;
     }
 
     function saveSettings() {
@@ -829,7 +719,7 @@
         if(confirm('متأكد؟ سيتم حذف البيانات.')) { localStorage.removeItem(DB_KEY); location.reload(); }
     }
 
-    // ربط الدوال بالـ window لتعمل مع الـ HTML
+    // Expose functions to HTML
     window.handleLogin = handleLogin;
     window.switchTab = switchTab;
     window.changeMonth = changeMonth;
@@ -837,6 +727,7 @@
     window.updatePayrollData = updatePayrollData;
     window.saveSettings = saveSettings;
     window.logout = logout;
+    window.toggleAttendance = toggleAttendance;
     window.handleSettingsImageUpload = e => {
         const r = new FileReader();
         r.onload = () => { document.getElementById('settings-preview').src = r.result; state.user.image = r.result; saveState(); };
